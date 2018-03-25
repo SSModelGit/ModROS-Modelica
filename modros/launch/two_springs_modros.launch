@@ -1,0 +1,18 @@
+<launch>
+ <!-- socket node -->
+  <node pkg="modros" type="socket_modros" name="socket_modros"/>
+
+ <!-- socket node -->
+  <node pkg="modros" type="controller_modros" name="controller_modros"/>
+
+ <!-- socket node -->
+  <node pkg="modros" type="teleop_tuned" name="teleop_modros"/>
+
+ <!-- joy node -->
+  <node respawn="true" pkg="joy"
+        type="joy_node" name="two_springs_joy" >
+    <param name="dev" type="string" value="/dev/input/js0" />
+    <param name="deadzone" value="0.50" />
+  </node>
+
+</launch>
