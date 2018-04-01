@@ -1,6 +1,8 @@
 <launch>
  <!-- socket node -->
-  <node pkg="modros" type="socket_modros" name="socket_modros"/>
+  <node pkg="modros" type="socket_modros" name="socket_modros">
+    <param name="portno" value="9090" />
+  </node>
 
  <!-- socket node -->
   <node pkg="modros" type="controller_modros" name="controller_modros"/>

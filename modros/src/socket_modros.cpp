@@ -60,6 +60,7 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "socket_modros"); // connection between Modelica and ROS
 
     ros::NodeHandle nh;
+    ros::NodeHandle nh_param;
     ros::Publisher pub = nh.advertise<modros::TwoSprings>("model_values", 1);
     modros::TwoSprings val;
 
@@ -77,6 +78,8 @@ int main(int argc, char **argv)
     struct sockaddr_in serv_addr, cli_addr; // socket structure parameters storing the socket addresses
 
     int errorCheck; // stores the return value from sending information via the socket, used for error checks
+
+    nh_param.param<int>("portno", portno, 9091);
 
     sockfd = socket(AF_INET, SOCK_STREAM, 0); // creates an INET socket and binds the handle to sockfd
     if (sockfd < 0) {
