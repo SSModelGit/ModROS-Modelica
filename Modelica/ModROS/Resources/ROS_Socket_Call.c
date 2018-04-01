@@ -43,7 +43,7 @@ void error(const char *msg)
     exit(0);
 }
 
-void ROS_Socket_Call(double time, int portno, double query1, double query2, double *res)
+void ROS_Socket_Call(double time, int portno, const char *hostname, double query1, double query2, double *res)
 {
     printf("time: %f\n", time); // time keeper
 
@@ -58,7 +58,7 @@ void ROS_Socket_Call(double time, int portno, double query1, double query2, doub
     if (sockfd < 0) 
         error("ERROR opening socket");
 
-    server = gethostbyname("localhost");
+    server = gethostbyname(hostname);
     if (server == NULL) {
         fprintf(stderr,"ERROR, no such host\n");
         exit(0);
