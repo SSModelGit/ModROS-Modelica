@@ -11,7 +11,7 @@ model TwoSpringJoystickControl "Two spring-damper system controlled by a joystic
   Modelica.Mechanics.Translational.Components.Mass mass2(L = 0, m = 1, s.fixed = true, s.start = 1, stateSelect = StateSelect.default) "Mass of second system" annotation(Placement(visible = true, transformation(origin = {-30, -40}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
   Modelica.Mechanics.Translational.Sources.Force force2 "Controlled external force affecting system 2" annotation(Placement(visible = true, transformation(origin = {60, -40}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
   Modelica.Mechanics.Translational.Sensors.PositionSensor spring2Position "Position of second spring" annotation(Placement(visible = true, transformation(origin = {-0, -40}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
-  Blocks.ROS_Sampler controller(n = 2, samplePeriod = 0.05, hostName = "192.168.0.113") "Provides control input to achieve desired spring state (position)" annotation(Placement(visible = true, transformation(origin = {30, 0}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
+  Blocks.ROS_Sampler controller(n = 2, samplePeriod = 0.05) "Provides control input to achieve desired spring state (position)" annotation(Placement(visible = true, transformation(origin = {30, 0}, extent = {{-10, -10}, {10, 10}}, rotation = 0)));
 equation
   connect(spring1.flange_b, mass1.flange_a) annotation(Line(visible = true, origin = {-50, 40}, points = {{-10, 0}, {10, 0}}, color = {0, 127, 0}));
   connect(origin.flange, spring1.flange_a) annotation(Line(visible = true, origin = {-93.333, 26.667}, points = {{-6.667, -26.667}, {-6.667, 13.333}, {13.333, 13.333}}, color = {0, 127, 0}));

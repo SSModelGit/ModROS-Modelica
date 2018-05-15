@@ -9,6 +9,7 @@
 #include <netinet/in.h>
 #include <netdb.h>
 #include <assert.h>
+#define h_addr h_addr_list[0] /* for backward compatibility */
 
 void commaconcatanater(char *s, double *dat)
 {
