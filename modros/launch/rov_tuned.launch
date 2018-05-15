@@ -1,0 +1,15 @@
+<launch>
+ <!-- socket node -->
+  <node pkg="modros" type="socket_ROV" name="socket"/>
+
+ <!-- socket node -->
+  <node pkg="modros" type="tuned_joy_ROV" name="controller_tuned"/>
+
+ <!-- joy node -->
+  <node respawn="true" pkg="joy"
+        type="joy_node" name="two_springs_joy" >
+    <param name="dev" type="string" value="/dev/input/js0" />
+    <param name="deadzone" value="0.50" />
+  </node>
+
+</launch>
