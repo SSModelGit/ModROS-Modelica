@@ -6,8 +6,10 @@ ros::Publisher pub;
 
 void joyCallback(const sensor_msgs::Joy::ConstPtr& joy) {
   modros::TwoSprings springVal;
-  springVal.sVal[0] = 10*joy->axes[1];
-  springVal.sVal[1] = 5*joy->axes[4];
+  for(int i = 0; i < 8; i++) {
+    springVal.sVal.push_back((i+1)*joy->axes[i]);
+  }
+  springVal.size = springVal.sVal.size();
   pub.publish(springVal);
 }
 

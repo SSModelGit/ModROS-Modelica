@@ -1,26 +1,28 @@
 #include "ros/ros.h"
 #include "modros/TwoSprings.h"
 
+#define MAX_ARRAY 100
+
 ros::Publisher pub;
 
-double springSetPoints[2] = {0.0, 0.0};
+double springSetPoints[MAX_ARRAY] = {0.0};
 
 void controlCallBack(const modros::TwoSprings::ConstPtr& inVal) {
 
     // find control values
     modros::TwoSprings outVal;
-    outVal.sVal[0] = 5 * (springSetPoints[0] - inVal->sVal[0]);
-    outVal.sVal[1] = 5 * (springSetPoints[1] - inVal->sVal[1]);
-    
-    printf("Incoming Values: %lf | %lf \n", inVal->sVal[0], inVal->sVal[1]);
-    printf("Outgoing Values: %lf | %lf \n\n", outVal.sVal[0], outVal.sVal[1]);
+    for(int i = 0; i < inVal->size; i++) {
+        outVal.sVal.push_back(5 * (springSetPoints[i] - inVal->sVal[i]));
+    }
+    outVal.size = outVal.sVal.size();
 
     pub.publish(outVal);
 }
 
 void joyCallback(const modros::TwoSprings::ConstPtr& modJoy) {
-    springSetPoints[0] = modJoy->sVal[0];
-    springSetPoints[1] = modJoy->sVal[1];
+    for(int i = 0; i<modJoy->size; i++) {
+        springSetPoints[i] = modJoy->sVal[i];
+    }
 }
 
 int main(int argc, char **argv)

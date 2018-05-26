@@ -5,10 +5,11 @@ function ROS_Socket_Call
   input Real t "time";
   input Integer port "port number";
   input String host "hostname";
-  input Real query1 "something random";
-  input Real query2 "something random - second strand";
-  output Real res[2] "output signal";
+  input Integer n_in "size of input signal";
+  input Integer n_out "size of output signal";
+  input Real query[n_in] "feedback query";
+  output Real res[n_out] "returned control signal output";
 
-  external "C" ROS_Socket_Call(t, port, host, query1, query2, res) annotation(Include = "#include \"ROS_Socket_Call.c\"", IncludeDirectory = "modelica://ModROS/Resources/");
+  external "C" ROS_Socket_Call(t, port, host, n_in, query, n_out, res) annotation(Include = "#include \"ROS_Socket_Call.c\"", IncludeDirectory = "modelica://ModROS/Resources/");
   annotation(Diagram(coordinateSystem(extent = {{-148.5, -105}, {148.5, 105}}, preserveAspectRatio = true, initialScale = 0.1, grid = {5, 5})));
 end ROS_Socket_Call;

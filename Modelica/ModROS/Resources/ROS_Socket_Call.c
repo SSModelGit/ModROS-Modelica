@@ -9,13 +9,18 @@
 #include <netinet/in.h>
 #include <netdb.h>
 #include <assert.h>
-#define h_addr h_addr_list[0] /* for backward compatibility */
 
-void commaconcatanater(char *s, double *dat)
+#define h_addr h_addr_list[0] /* for backward compatibility */
+#define MAX_BUF 1024
+#define MAX_ARRAY 256
+
+void commaconcatanater(char *s, double *dat, int datasize)
 {
     s[0] = '\0';
 	char s1[100];
-	for (int i = 0; i< sizeof(dat); i++)
+    sprintf(s1, "%d,", datasize);
+    strcat(s, s1); // specifies size of the message in the first element of the array
+	for (int i = 0; i< datasize; i++)
 	{
 		sprintf(s1,"%f,",dat[i]);
 		strcat(s,s1);
@@ -44,16 +49,18 @@ void error(const char *msg)
     exit(0);
 }
 
-void ROS_Socket_Call(double time, int portno, const char *hostname, double query1, double query2, double *res)
+void ROS_Socket_Call(double time, int portno, const char *hostname, int querySize, double * query, int resSize, double * res)
 {
     printf("time: %f\n", time); // time keeper
 
     int sockfd, n;
     struct sockaddr_in serv_addr;
     struct hostent *server;
-
-    double buf[2] = {query1, query2}; // keeps the input values in a double array buffer
-    char buffer[256]; // initializes character array buffer for socket transmission
+    
+    double buf[MAX_ARRAY];
+    memcpy(buf, query, querySize*sizeof(query[0]));
+    // double buf[2] = {query[0], query[1]}; // keeps the input values in a double array buffer
+    char buffer[MAX_BUF]; // initializes character array buffer for socket transmission
 
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd < 0) 
@@ -77,8 +84,12 @@ void ROS_Socket_Call(double time, int portno, const char *hostname, double query
 
     // Interact with socket (read and write):
     
-    commaconcatanater(buffer, buf);
-    printf("Outgoing Values: q1: %lf | q2: %lf \n", buf[0], buf[1]);
+    commaconcatanater(buffer, buf, querySize);
+    printf("Feedback Values:");
+    for(int fi = 0; fi < querySize; fi++) {
+        printf(" %lf |", buf[fi]);
+    }
+    printf("\n");
     n = write(sockfd, buffer, strlen(buffer));
     if (n < 0) 
         error("ERROR writing to socket");
@@ -86,8 +97,13 @@ void ROS_Socket_Call(double time, int portno, const char *hostname, double query
     n = read(sockfd, buffer, 255);
     if (n < 0) 
         error("ERROR reading from socket");
-    splitter(res, buffer, ",");
-    printf("Incoming Values: q1: %lf | q2: %lf \n\n", res[0], res[1]);
+    splitter(buf, buffer, ",");
+    memcpy(res, buf, resSize*sizeof(buf[0]));
+    printf("Control Values:");
+    for(int ci = 0; ci < resSize; ci++) {
+        printf(" %lf |", res[ci]);
+    };
+    printf("\n\n");
 
     close(sockfd); // close socket
 }

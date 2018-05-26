@@ -1,1 +1,2 @@
-float64[2] sVal
+float64[] sVal
+uint16 size
