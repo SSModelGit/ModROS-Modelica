@@ -11,11 +11,13 @@
 #include <assert.h>
 
 #define h_addr h_addr_list[0] /* for backward compatibility */
-#define MAX_BUF 1024
-#define MAX_ARRAY 256
+#define MAX_BUF 1024 // define maximum length of character buffer
+#define MAX_ARRAY 256 // define maximum size of internal buffer arrays
 
 void commaconcatanater(char *s, double *dat, int datasize)
 {
+    // concatenates all data from dat into char buffer s around a preset delemiter
+
     s[0] = '\0';
 	char s1[100];
     sprintf(s1, "%d,", datasize);
@@ -27,8 +29,11 @@ void commaconcatanater(char *s, double *dat, int datasize)
 	}
 }
 
-void splitter(double *outVal, char *s, char *delim) {
-    // http://www.rosipov.com/blog/c-strtok-usage-example/
+void splitter(double *outVal, char *s, char *delim) 
+{
+    // splits char buffer s into tokens around the char delimiter delim
+    // stores tokens as double elements in double array outVal
+
     int j, i = 0;
     char *token[80];
 
@@ -45,6 +50,8 @@ void splitter(double *outVal, char *s, char *delim) {
 
 void error(const char *msg)
 {
+    // prints error message for socket-related failures
+
     perror(msg);
     exit(0);
 }
@@ -55,13 +62,14 @@ void ROS_Socket_Call(double time, int portno, const char *hostname, int querySiz
 
     int sockfd, n;
     struct sockaddr_in serv_addr;
-    struct hostent *server;
+    struct hostent *server; // create socket-related parameters
     
-    double buf[MAX_ARRAY];
-    memcpy(buf, query, querySize*sizeof(query[0]));
-    // double buf[2] = {query[0], query[1]}; // keeps the input values in a double array buffer
+    double buf[MAX_ARRAY]; // array for storing values going to and coming from the socket
+    memcpy(buf, query, querySize*sizeof(query[0])); // initializes values of buf to input from Modelica
     char buffer[MAX_BUF]; // initializes character array buffer for socket transmission
 
+    // Setting up a TCP socket
+    
     sockfd = socket(AF_INET, SOCK_STREAM, 0);
     if (sockfd < 0) 
         error("ERROR opening socket");
@@ -82,26 +90,27 @@ void ROS_Socket_Call(double time, int portno, const char *hostname, int querySiz
     if (connect(sockfd,(struct sockaddr *) &serv_addr,sizeof(serv_addr)) < 0) 
         error("ERROR connecting");
 
-    // Interact with socket (read and write):
+    // Interacting with socket (read and write):
     
+    // Create char buffer from Modelica input to send over socket
     commaconcatanater(buffer, buf, querySize);
     printf("Feedback Values:");
     for(int fi = 0; fi < querySize; fi++) {
-        printf(" %lf |", buf[fi]);
+        printf(" %lf |", buf[fi]); // print to Modelica the provided feedback values, as seen by the socket
     }
     printf("\n");
-    n = write(sockfd, buffer, strlen(buffer));
+    n = write(sockfd, buffer, strlen(buffer)); // write char buffer to socket
     if (n < 0) 
         error("ERROR writing to socket");
 
-    n = read(sockfd, buffer, 255);
+    n = read(sockfd, buffer, MAX_BUF - 1); // read from socket que, store read information to char buffer
     if (n < 0) 
         error("ERROR reading from socket");
-    splitter(buf, buffer, ",");
-    memcpy(res, buf, resSize*sizeof(buf[0]));
+    splitter(buf, buffer, ","); // parse buffer for values, stored in data buffer (buf)
+    memcpy(res, buf, resSize*sizeof(buf[0])); // copies values from data buffer to Modelica output array, restricts output to desired amount of control channels
     printf("Control Values:");
     for(int ci = 0; ci < resSize; ci++) {
-        printf(" %lf |", res[ci]);
+        printf(" %lf |", res[ci]); // print to Modelica the incoming control values, as read by the socket
     };
     printf("\n\n");
 

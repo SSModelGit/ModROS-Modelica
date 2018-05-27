@@ -1,3 +1,5 @@
+// example node for running joystick values
+
 #include <ros/ros.h>
 #include "modros/TwoSprings.h"
 #include <sensor_msgs/Joy.h>
@@ -15,7 +17,7 @@ void joyCallback(const sensor_msgs::Joy::ConstPtr& joy) {
 
 int main(int argc, char **argv)
 {
-    ros::init(argc, argv, "teleop_tuned"); // scaled teleop values, representing desired spring position input for the model
+    ros::init(argc, argv, "teleop_tuned");
     ros::NodeHandle n;
     
     pub = n.advertise<modros::TwoSprings>("modros_joy", 1);

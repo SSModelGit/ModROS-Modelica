@@ -1,3 +1,5 @@
+// example controller node for ModROS
+
 #include "ros/ros.h"
 #include "modros/TwoSprings.h"
 
@@ -9,7 +11,6 @@ double springSetPoints[MAX_ARRAY] = {0.0};
 
 void controlCallBack(const modros::TwoSprings::ConstPtr& inVal) {
 
-    // find control values
     modros::TwoSprings outVal;
     for(int i = 0; i < inVal->size; i++) {
         outVal.sVal.push_back(5 * (springSetPoints[i] - inVal->sVal[i]));
@@ -27,7 +28,7 @@ void joyCallback(const modros::TwoSprings::ConstPtr& modJoy) {
 
 int main(int argc, char **argv)
 {
-    ros::init(argc, argv, "controller_modros"); // takes desired input from teleop_tuned, and feedback from socket_modros, does a proportional gain to get new control values
+    ros::init(argc, argv, "controller_modros");
     ros::NodeHandle n;
     
     pub = n.advertise<modros::TwoSprings>("control_values", 1);
