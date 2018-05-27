@@ -1,8 +1,10 @@
 <launch>
- <!-- socket node -->
-  <node pkg="modros" type="socket_ROV" name="socket"/>
+  <!-- socket node -->
+  <node pkg="modros" type="socket_modros" name="socket_modros">
+    <param name="portno" value="9090" />
+  </node>
 
- <!-- socket node -->
+ <!-- controller node -->
   <node pkg="modros" type="tuned_joy_ROV" name="controller_tuned"/>
 
  <!-- joy node -->

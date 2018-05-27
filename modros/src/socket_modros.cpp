@@ -1,5 +1,5 @@
 #include <ros/ros.h>
-#include <modros/TwoSprings.h>
+#include <modros/ModComm.h>
 #include <sys/types.h>
 #include <sys/socket.h>
 #include <sys/un.h>
@@ -46,13 +46,13 @@ void splitter(double *outVal, char *s, char *delim)
 double rec[MAX_ARRAY] = {0.0}; // global variable used to recieve data from callback, and then later transmit over socket
 int recSize = MAX_ARRAY; // indicates the amount of data coming from controller; initializes to maximum possible
 
-void storeCallback(const modros::TwoSprings::ConstPtr& inVal)
+void storeCallback(const modros::ModComm::ConstPtr& inVal)
 {
     // stores information coming from the controller, read by 
     int i;
     recSize = inVal->size; // sets to size of incoming msg from controller
     for(i = 0; i < recSize; i++) {
-        rec[i] = inVal->sVal[i];
+        rec[i] = inVal->data[i];
     }
 }
 
@@ -70,8 +70,8 @@ int main(int argc, char **argv)
     // setup ros publisher and subscriber
     ros::NodeHandle nh;
     ros::NodeHandle nh_param("~");
-    ros::Publisher pub = nh.advertise<modros::TwoSprings>("model_values", 1);
-    modros::TwoSprings outVal;
+    ros::Publisher pub = nh.advertise<modros::ModComm>("model_values", 1);
+    modros::ModComm outVal;
 
     ros::Subscriber sub = nh.subscribe("control_values", 1, storeCallback);
 
@@ -131,10 +131,10 @@ int main(int argc, char **argv)
 
         close(newsockfd); // close connection to the client socket
 
-        outVal.sVal.clear();
+        outVal.data.clear();
         outVal.size = rosBuf[0]; // sets the size of the message
         for (int rosI = 1; rosI <= outVal.size; rosI ++) {
-            outVal.sVal.push_back(rosBuf[rosI]);
+            outVal.data.push_back(rosBuf[rosI]);
         }
         pub.publish(outVal);
         ros::spinOnce();

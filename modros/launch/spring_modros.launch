@@ -5,14 +5,14 @@
   </node>
 
  <!-- socket node -->
-  <node pkg="modros" type="controller_modros" name="controller_modros"/>
+  <node pkg="modros" type="controller_spring" name="controller"/>
 
  <!-- socket node -->
-  <node pkg="modros" type="teleop_tuned" name="teleop_modros"/>
+  <node pkg="modros" type="teleop_spring" name="teleop"/>
 
  <!-- joy node -->
   <node respawn="true" pkg="joy"
-        type="joy_node" name="two_springs_joy" >
+        type="joy_node" name="joy_springs_modros" >
     <param name="dev" type="string" value="/dev/input/js0" />
     <param name="deadzone" value="0.50" />
   </node>

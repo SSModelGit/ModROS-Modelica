@@ -1,7 +1,6 @@
 #include <ros/ros.h>
-#include <modros/RovProps.h>
+#include <modros/ModComm.h>
 #include <sensor_msgs/Joy.h>
-#include <std_msgs/String.h>
 #include <stdio.h>
 #include <iostream>
 
@@ -52,22 +51,18 @@ void joyCallback(const sensor_msgs::Joy::ConstPtr& joy) {
     }
 }
 
-void rqCallback(const std_msgs::String::ConstPtr& msg)
+void controlCallBack(const modros::ModComm::ConstPtr& inVal)
 {
-    std::cout << "Servicing callback number " << msg->data.c_str();
-    
-    modros::RovProps rovVal;
-    rovVal.rVal = {0.0, 0.0, 0.0, 0.0, 0.0, 0.0};
-    printf("\n\n_  _    _                 _  _  _\n");
+    modros::ModComm rovVal;
+    double rVal[6] = {0.0};
     // Multiply inverse matrix by 'desired' joystick values
     for(int i = 0; i < invCMatDim; i++) {
         for(int j = 0; j < invCMatDim; j++) {
-            rovVal.rVal[i] += inverseControlMat[i][j] * joyVal[j];
+            rVal[i] += inverseControlMat[i][j] * joyVal[j];
         }
-        printf("| %lf |    | %lf %lf %lf %lf %lf %lf | | %lf |\n", rovVal.rVal[i], inverseControlMat[i][0], inverseControlMat[i][1], inverseControlMat[i][2], 
-        inverseControlMat[i][3], inverseControlMat[i][4], inverseControlMat[i][5], joyVal[i]);
+        rovVal.data.push_back(rVal[i]);
     }
-    printf("_  _    _                 _  _  _\n\n");
+    rovVal.size = rovVal.data.size();
     
     pub.publish(rovVal); // publish joystick-based control values
 }
@@ -77,9 +72,9 @@ int main(int argc, char **argv)
     ros::init(argc, argv, "rov_joystick_tuned_control_relay");
     ros::NodeHandle n;
     
-    pub = n.advertise<modros::RovProps>("control_values", 1);
+    pub = n.advertise<modros::ModComm>("control_values", 1);
     ros::Subscriber joy_sub = n.subscribe<sensor_msgs::Joy>("joy", 10, joyCallback);
-    ros::Subscriber rq_sub = n.subscribe<std_msgs::String>("request_channel", 1, rqCallback);
+    ros::Subscriber relay_sub = n.subscribe<modros::ModComm>("model_values", 1, controlCallBack);
 
     ros::spin();
 
