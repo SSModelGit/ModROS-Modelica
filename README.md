@@ -8,9 +8,10 @@ ModROS has so far been tested with ROS Kinetic - the following instructions will
 
 ### Prerequisites
 
-ModROS requires a \*nix platfom (Linux, etc.) to run, as of now - the external C function in Modelica has not been ported to Windows yet. It also requires a Modelica tool to run - it has currently been tested with:
+ModROS requires a \*nix platfom (Linux, etc.) to run, as of now - the external C function in Modelica has not been ported to Windows yet - and further requires a Modelica tool to run. It has currently been tested with:
 
-* SystemModeler
+* SystemModeler 5.0.0 and Ubuntu 16.04 LTS
+* SystemModeler 5.0.0 and macOS High Sierra
 
 ### Installing
 
