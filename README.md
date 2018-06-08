@@ -12,10 +12,12 @@ ModROS requires a \*nix platfom (Linux, etc.) to run, as of now - the external C
 
 * SystemModeler 5.0.0 and Ubuntu 16.04 LTS
 * SystemModeler 5.0.0 and macOS High Sierra
+* OpenModelica 1.12.0 and Ubuntu 16.04 LTS
+* OpenModelica 1.12.0 and macOS High Sierra
 
 ### Installing
 
-The following instructions work on Ubuntu 16.04, and forks of this version (ex. Ubuntu Mate 16.04, etc). Copy the contents of ```ubuntu_setup.sh``` into your favorite editor, and save as ```~/modros.sh```. Go to terminal, and run the command ```sh ~/modros.sh```. This will install both ROS Kinetic and ModROS on your system.
+The following instructions work on Ubuntu 16.04, and forks of this version (ex. Ubuntu Mate, Kubuntu, Ubuntu GNOME, etc). Copy the contents of ```ubuntu_setup.sh``` into your favorite editor, and save as ```~/modros.sh```. Go to terminal, and run the command ```sh ~/modros.sh```. This will install both ROS Kinetic and ModROS on your system.
 
 ## Running the examples
 
