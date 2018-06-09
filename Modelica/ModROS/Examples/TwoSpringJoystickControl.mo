@@ -25,5 +25,5 @@ equation
   connect(controller.y[1], force1.f) annotation(Line(visible = true, origin = {44.75, 20}, points = {{-3.75, -20}, {0.25, -20}, {0.25, 20}, {3.25, 20}}, color = {1, 37, 163}));
   connect(controller.y[2], force2.f) annotation(Line(visible = true, origin = {44.75, -20}, points = {{-3.75, 20}, {0.25, 20}, {0.25, -20}, {3.25, -20}}, color = {1, 37, 163}));
   connect(force2.flange, mass2.flange_b) annotation(Line(visible = true, origin = {27.956, -45.004}, points = {{42.044, 5.004}, {45.044, 5.004}, {45.044, -10.008}, {-42.089, -10.008}, {-42.089, 5.004}, {-47.956, 5.004}}, color = {0, 127, 0}));
-  annotation(experiment(StopTime = -1, Interval = 0.001, __Wolfram_Algorithm = "explicit-euler"));
+  annotation(experiment(StopTime = 10000, Interval = 20, StartTime = 0, Tolerance = 1e-06));
 end TwoSpringJoystickControl;

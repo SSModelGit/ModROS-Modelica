@@ -71,12 +71,10 @@ class Modros
 Modros::Modros()
 {
     // Initialize subscriber and publisher
-    ros::Subscriber sub = nh.subscribe("control_values", 1, storeCallback);
-    ros::Publisher pub = nh.advertise<modros::ModComm>("model_values", 1);
+    sub = nh.subscribe("control_values", 1, &Modros::controllerCallback, this);
+    pub = nh.advertise<modros::ModComm>("model_values", 1);
 
-    rec = {0.0};
     recSize = MAX_ARRAY;
-
 
     ros::NodeHandle nh_param("~");
     nh_param.param<int>("portno", portno, 9091);

@@ -34,10 +34,6 @@ include_directories(
 )
 
 ### ModROS's main node - the relay connection between Modelica and ROS
-add_executable(socket_modros src/socket_modros.cpp)
-target_link_libraries(socket_modros ${catkin_LIBRARIES})
-add_dependencies(socket_modros modros_generate_messages_cpp)
-
 add_executable(modros_node src/modros_node.cpp)
 target_link_libraries(modros_node ${catkin_LIBRARIES})
 add_dependencies(modros_node modros_generate_messages_cpp)
