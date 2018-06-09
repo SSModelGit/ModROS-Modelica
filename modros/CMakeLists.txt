@@ -38,6 +38,10 @@ add_executable(socket_modros src/socket_modros.cpp)
 target_link_libraries(socket_modros ${catkin_LIBRARIES})
 add_dependencies(socket_modros modros_generate_messages_cpp)
 
+add_executable(modros_node src/modros_node.cpp)
+target_link_libraries(modros_node ${catkin_LIBRARIES})
+add_dependencies(modros_node modros_generate_messages_cpp)
+
 ### Trials using joystick input to control values in Modelica model
 
 ## Example of using ModROS with a basic two spring-damper system
