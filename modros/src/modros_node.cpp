@@ -11,6 +11,8 @@
 #include <stdio.h>
 #include <unistd.h>
 #include <netinet/in.h>
+#include <signal.h>
+#include <functional>
 
 // For standard messages
 #include <stdlib.h>
@@ -27,40 +29,40 @@ class Modros
         Modros();
         //Function to keep program from closing
         void spin();
+        // SIGINT handler
+        void socketSigInt(int sig);
 
     private:
-        //callback for joy messages
+        // callback for control values
         void controllerCallback(const modros::ModComm::ConstPtr& inVal);
-        //Arm ardusub
-        void splitter(double *outVal, char *s, char *delim);
-        //Change rover mode
-        void commaconcatanater(char *s, double *dat);
-        //Arduino map function to get value between 1000-2000
+        // split incoming buffer messages
+        void splitter();
+        // concatanate outgoing buffer
+        void commaConcatanater();
+        // error message function
         void error(const char *msg);
 
-        //ROS node handle, subs, pubs, service clients
-        ros::NodeHandle nh;
-        ros::Subscriber sub;
-        ros::Publisher pub;
+        //ROS node handle, sub, pub
+        ros::NodeHandle nh_;
+        ros::Subscriber sub_;
+        ros::Publisher pub_;
 
-        int sockfd;
-        int newsockfd; 
-        int portno;
+        int socket_fd_;
+        int new_socket_fd_; 
+        int port_num_;
         struct sockaddr_in serv_addr; 
         // define socket information - bindings and port number
         
         // define client information
-        socklen_t clilen;
-        struct sockaddr_in cli_addr;
+        socklen_t client_len_;
+        struct sockaddr_in client_address_;
 
-        char buffer[MAX_BUF]; // string buffer used to transmit information over the socket
-        double sockBuf[MAX_ARRAY]; // buffer array for interaction with socket
-        double rosBuf[MAX_ARRAY]; // buffer array for transmission via ROS
-        double rec[MAX_ARRAY]; // global variable used to recieve data from callback, and then later transmit over socket
-        int recSize; // indicates the amount of data coming from controller; initializes to maximum possible
-        int update_rate;
+        char buffer_[MAX_BUF]; // string buffer used to transmit information over the socket
+        double socket_buffer_[MAX_ARRAY]; // buffer array for interaction with socket
+        double ros_buffer_[MAX_ARRAY]; // buffer array for transmission via ROS
+        int update_rate_;
 
-        int errorCheck;
+        int error_check_;
 };
 
 /*
@@ -71,18 +73,16 @@ class Modros
 Modros::Modros()
 {
     // Initialize subscriber and publisher
-    sub = nh.subscribe("control_values", 1, &Modros::controllerCallback, this);
-    pub = nh.advertise<modros::ModComm>("model_values", 1);
-
-    recSize = MAX_ARRAY;
+    sub_ = nh_.subscribe("control_values", 1, &Modros::controllerCallback, this);
+    pub_ = nh_.advertise<modros::ModComm>("model_values", 1);
 
     ros::NodeHandle nh_param("~");
-    nh_param.param<int>("portno", portno, 9091);
-    nh_param.param<int>("update_rate", update_rate, 20);
+    nh_param.param<int>("port_num", port_num_, 9091);
+    nh_param.param<int>("update_rate", update_rate_, 20);
 
     // begin tcp/ip socket
-    sockfd = socket(AF_INET, SOCK_STREAM, 0);
-    if (sockfd < 0) {
+    socket_fd_ = socket(AF_INET, SOCK_STREAM, 0);
+    if (socket_fd_ < 0) {
         error("ERROR opening socket");
     }
 
@@ -90,14 +90,14 @@ Modros::Modros()
 
     serv_addr.sin_family = AF_INET;
     serv_addr.sin_addr.s_addr = INADDR_ANY;
-    serv_addr.sin_port = htons(portno);
-    if (bind(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0) {
+    serv_addr.sin_port = htons(port_num_);
+    if (bind(socket_fd_, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0) {
         error("ERROR on binding");
     }
 }
 
 /*
-    Spin function to stop the program from closing and send control/feedback messages at provided parameter speed. 
+    Spin function to stop the program from closing, send control/feedback messages. 
     Inputs: None
     Returns: None
     
@@ -107,49 +107,52 @@ void Modros::spin()
     //set publish rate
     ros::Rate loop(20);
 
-    listen(sockfd,5);
-    clilen = sizeof(cli_addr);
+    // listen(socket_fd_,5);
+    // client_len_ = sizeof(client_address_);
 
   //check if the node is running
     while(ros::ok())
     {
         modros::ModComm outVal;
-        newsockfd = accept(sockfd, (struct sockaddr *) &cli_addr, &clilen); // createnew handle for client socket
-        if (newsockfd < 0) {
+
+        listen(socket_fd_,5);
+        client_len_ = sizeof(client_address_);
+
+        // create new handle for client socket
+        new_socket_fd_ = accept(socket_fd_, (struct sockaddr *) &client_address_, &client_len_); 
+        if (new_socket_fd_ < 0) {
             error("ERROR on accept");
         }
 
-        errorCheck = read(newsockfd, buffer, MAX_BUF-1); 
+        error_check_ = read(new_socket_fd_, buffer_, MAX_BUF-1); 
         // read from socket que, store read information to char buffer, max strlen of MAX_BUF - 1
-        if (errorCheck < 0) {
+        if (error_check_ < 0) {
             error("ERROR reading from socket");
         }
 
-        splitter(rosBuf, buffer, ","); // parse buffer for values, stored in data buffer (rosBuf)
+        splitter(); // parse buffer for values, stored in data buffer (ros_buffer_)
+        commaConcatanater(); // places socket_buffer_ into char buffer
 
-        memcpy(sockBuf, rec, recSize*sizeof(rec[0])); // copies the information stored on rec (from subscriber callback) to sockBuf
-
-        commaconcatanater(buffer, sockBuf); // places sockBuf values into buffer
-        errorCheck = write(newsockfd, buffer, strlen(buffer)); // write char buffer to socket
-        if (errorCheck < 0) {
+        error_check_ = write(new_socket_fd_, buffer_, strlen(buffer_)); // write char buffer to socket
+        if (error_check_ < 0) {
             error("ERROR writing to socket");
         }
 
-        close(newsockfd); // close connection to the client socket
+        close(new_socket_fd_); // close connection to the client socket
 
         outVal.data.clear();
-        outVal.size = rosBuf[0]; // sets the size of the message
+        outVal.size = ros_buffer_[0]; // sets the size of the message
         for (int rosI = 1; rosI <= outVal.size; rosI ++) {
-            outVal.data.push_back(rosBuf[rosI]);
+            outVal.data.push_back(ros_buffer_[rosI]);
         }
-        pub.publish(outVal);
+        pub_.publish(outVal);
 
         // run callbacks once
         ros::spinOnce();
         // enforce a max publish rate
         loop.sleep();
     }
-    close(sockfd); // shut down if SIGTERM
+    close(socket_fd_);
     ros::shutdown();
 }
 
@@ -164,50 +167,50 @@ void Modros::controllerCallback(const modros::ModComm::ConstPtr& inVal)
 {
     // stores information coming from the controller, read by 
     int i;
-    recSize = inVal->size; // sets to size of incoming msg from controller
-    for(i = 0; i < recSize; i++) {
-        rec[i] = inVal->data[i];
+    for(i = 0; i < inVal->size; i++) {
+        socket_buffer_[i] = inVal->data[i];
     }
 }
 
 /*
     Function: Split incoming character buffer from socket into tokens around provided delimiter
-    Inputs: array to store data split from buffer; incoming character buffer; delimiter
+    Inputs: None
     Returns: None
 */
-void Modros::splitter(double *outVal, char *s, char *delim)
+void Modros::splitter()
 {
     // splits char buffer s into tokens around the char delimiter delim
     // stores tokens as double elements in double array outVal
     int j, i = 0;
     char *token[80];
+    const char * delim = ",";
 
-    token[0] = strtok(s, delim);
+    token[0] = strtok(buffer_, delim);
     while (token[i] != NULL) {
         i++;
         token[i] = strtok(NULL, delim);
     }
 
     for (j=0; j<=i-1; j++) {
-        outVal[j] = atof(token[j]);
+        ros_buffer_[j] = atof(token[j]);
     }
 }
 
 /*
-    Function: concatenate outgoing socket buffer messages into one string. 
+    Function: concatanate outgoing socket buffer messages into one string. 
     Inputs: character buffer to add to; data to be concatenated
     Returns: None
 */
-void Modros::commaconcatanater(char *s, double *dat)
+void Modros::commaConcatanater()
 {
     // concatenates all data from dat into char buffer s around a preset delemiter
 
-    s[0] = '\0';
+    buffer_[0] = '\0';
 	char s1[100];
-	for (int i = 0; i< sizeof(dat); i++)
+	for (int i = 0; i< sizeof(*socket_buffer_); i++)
 	{
-		sprintf(s1,"%f,",dat[i]);
-		strcat(s,s1);
+		sprintf(s1,"%f,",socket_buffer_[i]);
+		strcat(buffer_,s1);
 	}   
 }
 
