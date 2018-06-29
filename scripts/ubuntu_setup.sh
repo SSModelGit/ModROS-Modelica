@@ -19,9 +19,10 @@ catkin_make
 echo "source ~/catkin_ws/devel/setup.bash" >> ~/.bashrc
 source ~/.bashrc
 
-#Download repo
+#Download repos
 mkdir ~/repos
-git clone https://github.com/SSModelGit/ModROS.git ~/repos/ModROS
-ln -s ~/repos/ModROS/modros ~/catkin_ws/src/modros
-ln -s ~/repos/ModROS/modros_examples ~/catkin_ws/src/modros_examples
+git clone https://github.com/ModROS/modros.git ~/repos/modros
+git clone https://github.com/SSModelGit/ModROS-Modelica.git ~/repos/ModROS-Modelica
+ln -s ~/repos/modros ~/catkin_ws/src/modros
+ln -s ~/repos/ModROS-Modelica/modros_examples ~/catkin_ws/src/modros_examples
 catkin_make
