@@ -1,0 +1,21 @@
+actions: []
+authors: ''
+brief: ''
+bugtracker: ''
+depends:
+- catkin
+- roscpp
+- joy
+- message_runtime
+- std_msgs
+- rospy
+- message_generation
+description: A package for connecting ROS to Modelica tools via TCP sockets
+license: TODO
+maintainers: shashank <shashank@todo.todo>
+msgs:
+- ModComm
+package_type: package
+repo_url: ''
+srvs: []
+url: ''

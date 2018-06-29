@@ -1,6 +1,16 @@
-/** @file modros_node.cpp
- * Node to connect Modelica to ROS.
-*/
+/**
+ * @brief ModROS class and node
+ * @file modros_node.cpp
+ * @author Shashank Swaminathan <sh.swami235@gmail.com>
+ * Node for connecting Modelica to ROS via a tcp/ip interface.
+ */
+/*
+ * Copyright 2017,2018 Shashank Swaminathan.
+ *
+ * This file is part of the ModROS package and subject to the license terms
+ * in the top-level LICENSE file of the modros repository.
+ * https://github.com/SSModelGit/ModROS/blob/master/LICENSE
+ */
 
 #include <ros/ros.h>
 #include <modros/ModComm.h>
@@ -25,15 +35,15 @@
  * It initializes a tcp/ip socket to act as a relay between ROS and Modelica. It 
  * can take character buffers up to 1024 bytes.
  */
-class Modros
+class ModRos
 {
     public:
         /**
-         * Defult constructor initialzes RCmsg, joy stick flags, subs and pubs.
+         * Defult constructor initializes receiving socket, subs and pubs.
          * No inputs.
          * @return none
          */
-        Modros();
+        ModRos();
         /**
          * Keep program from closing.
          * Run callbacks for ROS nodes, and keep socket connection to Modelica alive.
@@ -72,7 +82,7 @@ class Modros
 
         /**
          * Prints error message when interacting with socket.
-         * @param [in] error message
+         * @param [in] msg error message
          * @see error_check_()
          * @return none
          */
@@ -97,9 +107,9 @@ class Modros
         int error_check_; ///< Parameter for checking errors on socket interaction.
 };
 
-Modros::Modros()
+ModRos::ModRos()
 {
-    sub_ = nh_.subscribe("control_values", 1, &Modros::controllerCallback, this);
+    sub_ = nh_.subscribe("control_values", 1, &ModRos::controllerCallback, this);
     pub_ = nh_.advertise<modros::ModComm>("model_values", 1);
 
     ros::NodeHandle nh_param("~");
@@ -121,7 +131,7 @@ Modros::Modros()
     }
 }
 
-void Modros::spin() 
+void ModRos::spin() 
 {
     ros::Rate loop(20);
 
@@ -165,7 +175,7 @@ void Modros::spin()
     close(socket_fd_);
 }
 
-void Modros::controllerCallback(const modros::ModComm::ConstPtr& inVal)
+void ModRos::controllerCallback(const modros::ModComm::ConstPtr& inVal)
 {
     int i;
     for(i = 0; i < inVal->size; i++) {
@@ -173,7 +183,7 @@ void Modros::controllerCallback(const modros::ModComm::ConstPtr& inVal)
     }
 }
 
-void Modros::splitter()
+void ModRos::splitter()
 {
     int j, i = 0;
     char *token[80];
@@ -190,7 +200,7 @@ void Modros::splitter()
     }
 }
 
-void Modros::commaConcatanater()
+void ModRos::commaConcatanater()
 {
     buffer_[0] = '\0';
 	char s1[100];
@@ -201,7 +211,7 @@ void Modros::commaConcatanater()
 	}   
 }
 
-void Modros::error(const char *msg)
+void ModRos::error(const char *msg)
 {
     perror(msg);
     exit(1);
@@ -211,7 +221,7 @@ int main(int argc, char** argv)
 {
     ros::init(argc, argv, "modros_node");
 
-    Modros modros;
+    ModRos modros;
     
     modros.spin();
     
