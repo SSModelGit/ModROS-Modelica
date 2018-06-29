@@ -6,10 +6,10 @@
   </node>
 
  <!-- socket node -->
-  <node pkg="modros" type="controller_spring" name="controller"/>
+  <node pkg="modros_examples" type="controller_spring" name="controller"/>
 
  <!-- socket node -->
-  <node pkg="modros" type="teleop_spring" name="teleop"/>
+  <node pkg="modros_examples" type="teleop_spring" name="teleop"/>
 
  <!-- joy node -->
   <node respawn="true" pkg="joy"

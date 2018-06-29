@@ -23,4 +23,5 @@ source ~/.bashrc
 mkdir ~/repos
 git clone https://github.com/SSModelGit/ModROS.git ~/repos/ModROS
 ln -s ~/repos/ModROS/modros ~/catkin_ws/src/modros
+ln -s ~/repos/ModROS/modros_examples ~/catkin_ws/src/modros_examples
 catkin_make

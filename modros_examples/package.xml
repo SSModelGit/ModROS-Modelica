@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <package format="2">
-  <name>modros_example</name>
+  <name>modros_examples</name>
   <version>0.0.0</version>
   <description>A package for connecting ROS to Modelica tools via TCP sockets</description>
 
@@ -26,7 +26,6 @@
   <build_export_depend>roscpp</build_export_depend>
   <build_export_depend>rospy</build_export_depend>
   <build_export_depend>std_msgs</build_export_depend>
-  <build_export_depend>modros</build_export_depend>
   <exec_depend>joy</exec_depend>
   <exec_depend>roscpp</exec_depend>
   <exec_depend>rospy</exec_depend>

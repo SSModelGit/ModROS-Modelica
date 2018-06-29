@@ -1,32 +1,12 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(modros_example)
+project(modros_examples)
+add_compile_options(-std=c++11)
 
-## Compile as C++11, supported in ROS Kinetic and newer
-# add_compile_options(-std=c++11)
+set(CATKIN_DEPS joy roscpp std_msgs modros)
+find_package(catkin REQUIRED COMPONENTS message_generation ${CATKIN_DEPS})
+include_directories(${catkin_INCLUDE_DIRS})
 
-find_package(catkin REQUIRED COMPONENTS
-  joy
-  roscpp
-  rospy
-  std_msgs
-  message_generation
-)
-
-generate_messages(
-  DEPENDENCIES
-  std_msgs
-)
-
-catkin_package(
-  LIBRARIES modros
-  CATKIN_DEPENDS joy roscpp rospy std_msgs message_runtime modros
-  # DEPENDS system_lib
-)
-
-include_directories(
-# include
-  ${catkin_INCLUDE_DIRS}
-)
+catkin_package(CATKIN_DEPENDS message_runtime ${CATKIN_DEPS})
 
 ### Trials using joystick input to control values in Modelica model
 
@@ -35,15 +15,18 @@ include_directories(
 # Uses ModComm.msg for passing values to relay node
 add_executable(controller_spring src/spring_example/controller_spring.cpp)
 target_link_libraries(controller_spring ${catkin_LIBRARIES})
-add_dependencies(controller_spring modros_example_generate_messages_cpp)
+# add_dependencies(controller_spring modros_examples_generate_messages_cpp)
+add_dependencies(controller_spring ${catkin_EXPORTED_TARGETS})
 
 # Recieves values from Joy node, scales values, and assigns desired axes values to the values within ModComm.msg
 add_executable(teleop_spring src/spring_example/teleop_spring.cpp)
 target_link_libraries(teleop_spring ${catkin_LIBRARIES})
-add_dependencies(teleop_spring modros_example_generate_messages_cpp)
+# add_dependencies(teleop_spring modros_examples_generate_messages_cpp)
+add_dependencies(teleop_spring ${catkin_EXPORTED_TARGETS})
 
 ## Example of using ModROS with a more involved example of modeling a BlueROV2 system
 # This focuses on passing tuned values through ModComm.msg based on the values coming from the joystick
 add_executable(tuned_joy_ROV src/bluerov2_example/tuned_joy_ROV.cpp)
 target_link_libraries(tuned_joy_ROV ${catkin_LIBRARIES})
-add_dependencies(tuned_joy_ROV modros_example_generate_messages_cpp)
+# add_dependencies(tuned_joy_ROV modros_examples_generate_messages_cpp)
+add_dependencies(tuned_joy_ROV ${catkin_EXPORTED_TARGETS})

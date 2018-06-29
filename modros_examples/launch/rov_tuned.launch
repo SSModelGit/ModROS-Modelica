@@ -6,7 +6,7 @@
   </node>
 
  <!-- controller node -->
-  <node pkg="modros" type="tuned_joy_ROV" name="controller_tuned"/>
+  <node pkg="modros_examples" type="tuned_joy_ROV" name="controller_tuned"/>
 
  <!-- joy node -->
   <node respawn="true" pkg="joy"
